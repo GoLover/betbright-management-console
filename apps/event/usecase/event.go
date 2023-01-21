@@ -8,10 +8,30 @@ import (
 )
 
 type EventUseCase struct {
-	r domain.SportRepository
+	observers         []domain.Observer
+	subjectsToObserve []domain.Observee
+	r                 domain.SportRepository
 }
 
-func (s EventUseCase) CreateEvent(ctx context.Context, event domain.Event, sportSlug string) (domain.Event, error) {
+func (s *EventUseCase) Update() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *EventUseCase) Register(observer domain.Observer) {
+	if s.observers == nil {
+		s.observers = make([]domain.Observer, 0)
+	}
+	s.observers = append(s.observers, observer)
+}
+
+func (s *EventUseCase) Notify() {
+	for _, k := range s.observers {
+		k.Update()
+	}
+}
+
+func (s *EventUseCase) CreateEvent(ctx context.Context, event domain.Event, sportSlug string) (domain.Event, error) {
 	event.Slug = slug.Make(event.Name)
 	event.IsActive = true
 	_, err := s.r.CreateEvent(event, sportSlug)
@@ -22,24 +42,32 @@ func (s EventUseCase) CreateEvent(ctx context.Context, event domain.Event, sport
 	}
 	return domain.Event{}, err
 }
-func (s EventUseCase) UpdateEvent(ctx context.Context, event domain.Event, currentEventSlug, newSportSlug string) (domain.Event, error) {
+func (s *EventUseCase) UpdateEvent(ctx context.Context, event domain.Event, currentEventSlug, newSportSlug string) (domain.Event, error) {
 	event.Slug = slug.Make(event.Name)
 	return s.r.UpdateEvent(event, currentEventSlug, newSportSlug)
 }
 
-func (s EventUseCase) DeactivateEvent(ctx context.Context, slug string) error {
+func (s *EventUseCase) DeactivateEvent(ctx context.Context, slug string) error {
 	return s.r.ChangeActivationEvent(slug, false)
 }
 
-func (s EventUseCase) ActivateEvent(ctx context.Context, slug string) error {
+func (s *EventUseCase) SyncActiveStatus(ctx context.Context) {
+
+}
+
+func (s *EventUseCase) ActivateEvent(ctx context.Context, slug string) error {
 	return s.r.ChangeActivationEvent(slug, true)
 }
 
-func (s EventUseCase) DeleteEvent(ctx context.Context, slug string) error {
+func (s *EventUseCase) DeleteEvent(ctx context.Context, slug string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func New(r domain.SportRepository) *EventUseCase {
+func New(r domain.SportRepository, subjectsToObserve []domain.Observee) *EventUseCase {
+	eu := &EventUseCase{r: r}
+	for _, k := range subjectsToObserve {
+		k.Register(eu)
+	}
 	return &EventUseCase{r: r}
 }

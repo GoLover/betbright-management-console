@@ -30,10 +30,11 @@ func Boot() {
 	var _ domain.Operator = eventCmd.EventOperator{}
 	var _ domain.Operator = selectionCmd.SelectionOperator{}
 
-	sportUsecase := sportUseCase.New(repo)
 	selectionUsecase := selectionUseCase.New(repo)
-	marketUsecase := marketUseCase.New(repo)
-	eventUsecase := eventUseCase.New(repo)
+	marketUsecase := marketUseCase.New(repo, []domain.Observee{selectionUsecase})
+	eventUsecase := eventUseCase.New(repo, []domain.Observee{marketUsecase})
+	sportUsecase := sportUseCase.New(repo, []domain.Observee{eventUsecase})
+
 	sportHandler := sportCmd.New(sportUsecase, cmd)
 	eventHandler := eventCmd.New(eventUsecase, cmd)
 	marketHandler := marketCmd.New(marketUsecase, cmd)
