@@ -43,6 +43,19 @@ func fillSelectionInteractive() domain.Selection {
 		Selectable: nil,
 	}
 	selection.SelectedMarket.Id, _ = strconv.Atoi(helper.InputHandler(pm))
+	outcomes := []string{"Unsettled", "Void", "Lose", "Place", "Win"}
+	pm = helper.PromptMessage{
+		Msg:        "please select outcome",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: outcomes,
+	}
+	outcome := helper.SelectHandler(pm)
+	for i, k := range outcomes {
+		if k == outcome {
+			selection.Outcome = domain.OutcomeState(i) + 1
+			break
+		}
+	}
 	return selection
 }
 func (s SelectionOperator) Create(ctx context.Context) {
@@ -55,8 +68,18 @@ func (s SelectionOperator) Create(ctx context.Context) {
 }
 
 func (s SelectionOperator) Update(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	selection := fillSelectionInteractive()
+	pm := helper.PromptMessage{
+		Msg:        "please enter selection id for update",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	selectionId, _ := strconv.Atoi(helper.InputHandler(pm))
+	_, err := s.su.UpdateSelection(ctx, selection, selectionId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return
 }
 
 func (s SelectionOperator) Delete(ctx context.Context) {
@@ -76,8 +99,16 @@ func (s SelectionOperator) Deactivate(ctx context.Context) {
 	}
 }
 func (s SelectionOperator) Activate(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "please enter selection id to activate",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	selectionId, _ := strconv.Atoi(helper.InputHandler(pm))
+	err := s.su.ActivateSelection(ctx, selectionId)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (s SelectionOperator) Search(ctx context.Context) {

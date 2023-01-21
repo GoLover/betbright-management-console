@@ -30,8 +30,7 @@ func (s *SelectionUseCase) CreateSelection(ctx context.Context, selection domain
 }
 
 func (s *SelectionUseCase) UpdateSelection(ctx context.Context, selection domain.Selection, selectionId int) (domain.Selection, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.r.UpdateSelection(selection, selectionId, selection.SelectedMarket.Id, selection.SelectedEvent.Id)
 }
 
 func (s *SelectionUseCase) DeleteSelection(ctx context.Context, selectionId int) error {
