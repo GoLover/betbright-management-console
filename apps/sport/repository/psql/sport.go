@@ -31,13 +31,13 @@ func (s *SportRepository) CreateSport(sport domain.Sport) (domain.Sport, error) 
 	return dao.ToDomain(), nil
 }
 
-func (s *SportRepository) getSportBySlug(slug string, complete bool) (domain.Sport, error) {
+func (s *SportRepository) getSportWithFilter(filter Sport, complete bool) (domain.Sport, error) {
 	dao := &Sport{}
 	var err error
 	if complete {
-		err = errorTranslator(s.db.Where(&Sport{Slug: slug}).Preload(`Events`).Find(dao).Error)
+		err = errorTranslator(s.db.Where(&filter).Preload(`Events`).Find(dao).Error)
 	} else {
-		err = errorTranslator(s.db.Where(&Sport{Slug: slug}).First(dao).Error)
+		err = errorTranslator(s.db.Where(&filter).First(dao).Error)
 	}
 	if err != nil {
 		return domain.Sport{}, err
@@ -59,10 +59,15 @@ func (s *SportRepository) UpdateSport(sport domain.Sport, sportSlug string) (dom
 	}
 	return dao.ToDomain(), nil
 }
-
-func (s *SportRepository) DeactivateSport(slug string) error {
-	//TODO implement me
-	panic("implement me")
+func (s *SportRepository) ChangeActivationSport(sportSlug string, active bool) error {
+	fmt.Println(s.db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx.Model(&Sport{Slug: sportSlug}).Where(&Sport{Slug: sportSlug}).Updates(map[string]interface{}{"is_active": active})
+	}))
+	updateResult := s.db.Model(&Sport{Slug: sportSlug}).Where(&Sport{Slug: sportSlug}).Updates(map[string]interface{}{"is_active": active})
+	if updateResult.RowsAffected == 0 {
+		return fmt.Errorf(`sport %w`, domain.ErrRepoRecordNotFound)
+	}
+	return errorTranslator(updateResult.Error)
 }
 
 func errorTranslator(err error) error {

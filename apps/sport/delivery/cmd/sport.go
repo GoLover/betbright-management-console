@@ -58,9 +58,22 @@ func (s SportOperator) Update(ctx context.Context) {
 	fmt.Printf(`%#v`, updateSport)
 }
 
+func (s SportOperator) Deactivate(ctx context.Context) {
+	pm := helper.PromptMessage{
+		Msg:        "please enter sport slug you want to deactivate",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	sportSlugForDelete := helper.InputHandler(pm)
+	err := s.u.DeactivateSport(ctx, sportSlugForDelete)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`sport deactivated successfully`)
+}
 func (s SportOperator) Delete(ctx context.Context) {
-	//TODO implement me
-	panic("SD implement me")
+	panic("imp")
 }
 
 func (s SportOperator) Search(ctx context.Context) {

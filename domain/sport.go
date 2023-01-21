@@ -26,9 +26,11 @@ type SportRepository interface {
 	CreateEvent(event Event, sportSlug string) (Event, error)
 	UpdateEvent(event Event, eventSlug, sportSlug string) (Event, error)
 	CreateMarket(market Market, eventSlug string) (Market, error)
+	UpdateMarket(market Market, marketId int, eventSlug string) (Market, error)
 	CreateSelection(selection Selection, marketId, eventId int) (Selection, error)
-	DeactivateSport(slug string) error
-	DeactivateEvent(slug string) error
-	DeactivateMarket(id int) error
-	DeactivateSelection(id int) error
+	UpdateSelection(selection Selection, selectionId, marketId, eventId int) (Selection, error)
+	ChangeActivationSport(sportSlug string, active bool) error
+	ChangeActivationEvent(eventSlug string, active bool) error
+	ChangeActivationMarket(marketId int, active bool) error
+	ChangeActivationSelection(selectionId int, active bool) error
 }
