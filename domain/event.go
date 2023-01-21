@@ -25,6 +25,7 @@ type Event struct {
 	Status   EventStatus
 	Slug     string
 	IsActive bool
+	SportId  int
 	Markets  []Market
 }
 

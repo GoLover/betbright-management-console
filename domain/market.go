@@ -10,6 +10,7 @@ type Market struct {
 	IsActive    bool
 	Schema      int
 	Columns     int
+	EventId     int
 }
 type MarketUseCase interface {
 	CreateMarket(ctx context.Context, market Market, eventSlug string) (Market, error)

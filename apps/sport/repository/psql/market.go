@@ -3,6 +3,7 @@ package psql
 import (
 	"betbright-management-console/domain"
 	"fmt"
+	"gorm.io/gorm/clause"
 )
 
 func (s *SportRepository) CreateMarket(market domain.Market, eventSlug string) (domain.Market, error) {
@@ -18,6 +19,22 @@ func (s *SportRepository) CreateMarket(market domain.Market, eventSlug string) (
 		return domain.Market{}, err
 	}
 	return dao.ToDomain(), nil
+}
+
+func (s *SportRepository) GetMarketsByEventId(eventId int) ([]domain.Market, error) {
+	markets := make([]Market, 0)
+	err := errorTranslator(s.db.Model(&Market{}).Where(&Market{EventID: eventId}).Find(&markets).Error)
+	if len(markets) == 0 {
+		return []domain.Market{}, fmt.Errorf(`market %#v`, domain.ErrRepoRecordNotFound)
+	}
+	if err != nil {
+		return []domain.Market{}, err
+	}
+	result := make([]domain.Market, 0)
+	for _, k := range markets {
+		result = append(result, k.ToDomain())
+	}
+	return result, nil
 }
 
 func (s *SportRepository) UpdateMarket(market domain.Market, marketId int, eventSlug string) (domain.Market, error) {
@@ -40,10 +57,20 @@ func (s *SportRepository) UpdateMarket(market domain.Market, marketId int, event
 	}
 	return dao.ToDomain(), nil
 }
-func (s *SportRepository) ChangeActivationMarket(marketId int, active bool) error {
-	updateResult := s.db.Model(&Market{}).Where(&Market{Id: marketId}).Updates(map[string]interface{}{"is_active": active})
+func (s *SportRepository) ChangeActivationMarket(marketId int, active bool) (domain.Market, error) {
+	market := &Market{}
+	updateResult := s.db.Model(&market).Clauses(clause.Returning{}).Where(&Market{Id: marketId}).Updates(map[string]interface{}{"is_active": active})
 	if updateResult.RowsAffected == 0 {
-		return fmt.Errorf(`market %w`, domain.ErrRepoRecordNotFound)
+		return domain.Market{}, fmt.Errorf(`market %w`, domain.ErrRepoRecordNotFound)
 	}
-	return errorTranslator(updateResult.Error)
+	return market.ToDomain(), errorTranslator(updateResult.Error)
+}
+
+func (s *SportRepository) GetMarketById(id int) (domain.Market, error) {
+	var market Market
+	err := errorTranslator(s.db.Model(&Market{}).Where(Market{Id: id}).First(&market).Error)
+	if err != nil {
+		return domain.Market{}, err
+	}
+	return market.ToDomain(), nil
 }

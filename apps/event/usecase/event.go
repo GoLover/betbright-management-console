@@ -4,6 +4,7 @@ import (
 	"betbright-management-console/domain"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/gosimple/slug"
 )
 
@@ -13,9 +14,24 @@ type EventUseCase struct {
 	r                 domain.SportRepository
 }
 
-func (s *EventUseCase) Update() {
-	//TODO implement me
-	panic("implement me")
+func (s *EventUseCase) Update(ctx context.Context) {
+	eventId := ctx.Value(`eventId`).(int)
+	markets, err := s.r.GetMarketsByEventId(eventId)
+	if err != nil {
+		fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+	}
+	if len(markets) == 0 {
+		event, err := s.r.GetEventById(eventId)
+		if err != nil {
+			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			return
+		}
+		err = s.DeactivateEvent(ctx, event.Slug)
+		if err != nil {
+			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			return
+		}
+	}
 }
 
 func (s *EventUseCase) Register(observer domain.Observer) {
@@ -25,9 +41,9 @@ func (s *EventUseCase) Register(observer domain.Observer) {
 	s.observers = append(s.observers, observer)
 }
 
-func (s *EventUseCase) Notify() {
+func (s *EventUseCase) Notify(ctx context.Context) {
 	for _, k := range s.observers {
-		k.Update()
+		k.Update(ctx)
 	}
 }
 
@@ -48,15 +64,17 @@ func (s *EventUseCase) UpdateEvent(ctx context.Context, event domain.Event, curr
 }
 
 func (s *EventUseCase) DeactivateEvent(ctx context.Context, slug string) error {
-	return s.r.ChangeActivationEvent(slug, false)
-}
-
-func (s *EventUseCase) SyncActiveStatus(ctx context.Context) {
-
+	event, err := s.r.ChangeActivationEvent(slug, false)
+	if err != nil {
+		return err
+	}
+	s.Notify(context.WithValue(ctx, `sportId`, event.SportId))
+	return err
 }
 
 func (s *EventUseCase) ActivateEvent(ctx context.Context, slug string) error {
-	return s.r.ChangeActivationEvent(slug, true)
+	_, err := s.r.ChangeActivationEvent(slug, true)
+	return err
 }
 
 func (s *EventUseCase) DeleteEvent(ctx context.Context, slug string) error {

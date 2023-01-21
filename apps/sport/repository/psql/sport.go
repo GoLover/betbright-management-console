@@ -70,6 +70,15 @@ func (s *SportRepository) ChangeActivationSport(sportSlug string, active bool) e
 	return errorTranslator(updateResult.Error)
 }
 
+func (s *SportRepository) GetSportById(id int) (domain.Sport, error) {
+	var sport Sport
+	err := errorTranslator(s.db.Model(&Sport{}).Where(Sport{Id: id}).First(&sport).Error)
+	if err != nil {
+		return domain.Sport{}, err
+	}
+	return sport.ToDomain(), nil
+}
+
 func errorTranslator(err error) error {
 	if err == nil {
 		return nil

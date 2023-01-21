@@ -1,9 +1,11 @@
 package domain
 
+import "context"
+
 type Observee interface {
 	Register(observer Observer)
-	Notify()
+	Notify(ctx context.Context)
 }
 type Observer interface {
-	Update()
+	Update(ctx context.Context)
 }

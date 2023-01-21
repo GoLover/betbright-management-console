@@ -112,6 +112,7 @@ func (e *Market) FillFromDomain(market domain.Market) {
 	e.IsActive = market.IsActive
 	e.Schema = market.Schema
 	e.Columns = market.Columns
+	e.EventID = market.EventId
 }
 
 func (e *Market) ToDomain() domain.Market {
@@ -123,6 +124,7 @@ func (e *Market) ToDomain() domain.Market {
 		IsActive:    e.IsActive,
 		Schema:      e.Schema,
 		Columns:     e.Columns,
+		EventId:     e.EventID,
 	}
 	return market
 }

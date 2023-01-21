@@ -3,6 +3,7 @@ package usecase
 import (
 	"betbright-management-console/domain"
 	"context"
+	"fmt"
 	"github.com/gosimple/slug"
 )
 
@@ -10,9 +11,24 @@ type SportUseCase struct {
 	r domain.SportRepository
 }
 
-func (s *SportUseCase) Update() {
-	//TODO implement me
-	panic("implement me")
+func (s *SportUseCase) Update(ctx context.Context) {
+	sportId := ctx.Value(`sportId`).(int)
+	sports, err := s.r.GetEventsBySportId(sportId)
+	if err != nil {
+		fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+	}
+	if len(sports) == 0 {
+		sport, err := s.r.GetSportById(sportId)
+		if err != nil {
+			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			return
+		}
+		err = s.DeactivateSport(ctx, sport.Slug)
+		if err != nil {
+			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			return
+		}
+	}
 }
 
 func (s *SportUseCase) CreateSport(ctx context.Context, sport domain.Sport) (domain.Sport, error) {

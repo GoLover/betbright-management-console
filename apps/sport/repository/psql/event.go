@@ -3,6 +3,7 @@ package psql
 import (
 	"betbright-management-console/domain"
 	"fmt"
+	"gorm.io/gorm/clause"
 )
 
 func (s *SportRepository) getEventWithFilter(event Event, complete bool) (domain.Event, error) {
@@ -55,10 +56,36 @@ func (s *SportRepository) UpdateEvent(event domain.Event, eventSlug, sportSlug s
 	updatedEvent := dao.ToDomain()
 	return updatedEvent, nil
 }
-func (s *SportRepository) ChangeActivationEvent(eventSlug string, active bool) error {
-	updateResult := s.db.Model(&Event{}).Where(&Event{Slug: eventSlug}).Updates(map[string]interface{}{"is_active": active})
+func (s *SportRepository) ChangeActivationEvent(eventSlug string, active bool) (domain.Event, error) {
+	event := &Event{}
+	updateResult := s.db.Model(event).Clauses(clause.Returning{}).Where(&Event{Slug: eventSlug}).Updates(map[string]interface{}{"is_active": active})
 	if updateResult.RowsAffected == 0 {
-		return fmt.Errorf(`event %w`, domain.ErrRepoRecordNotFound)
+		return domain.Event{}, fmt.Errorf(`event %w`, domain.ErrRepoRecordNotFound)
 	}
-	return errorTranslator(updateResult.Error)
+	return event.ToDomain(), errorTranslator(updateResult.Error)
+}
+
+func (s *SportRepository) GetEventsBySportId(sportId int) ([]domain.Event, error) {
+	var events []Event
+	err := errorTranslator(s.db.Model(&Event{}).Where(map[string]interface{}{"sport_id": sportId}).Find(&events).Error)
+	if err != nil {
+		return nil, err
+	}
+	if len(events) == 0 {
+		return nil, domain.ErrRepoRecordNotFound
+	}
+	result := make([]domain.Event, 0)
+	for _, k := range events {
+		result = append(result, k.ToDomain())
+	}
+	return result, nil
+}
+
+func (s *SportRepository) GetEventById(id int) (domain.Event, error) {
+	var event Event
+	err := errorTranslator(s.db.Model(&Event{}).Where(Event{Id: id}).First(&event).Error)
+	if err != nil {
+		return domain.Event{}, err
+	}
+	return event.ToDomain(), nil
 }

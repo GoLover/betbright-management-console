@@ -3,6 +3,7 @@ package usecase
 import (
 	"betbright-management-console/domain"
 	"context"
+	"fmt"
 )
 
 type MarketUseCase struct {
@@ -11,9 +12,19 @@ type MarketUseCase struct {
 	r                 domain.SportRepository
 }
 
-func (s *MarketUseCase) Update() {
-	//TODO implement me
-	panic("implement me")
+func (s *MarketUseCase) Update(ctx context.Context) {
+	marketId := ctx.Value(`marketId`).(int)
+	selections, err := s.r.GetSelectionByMarketId(marketId)
+	if err != nil {
+		fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+	}
+	if len(selections) == 0 {
+		err = s.DeactivateMarket(ctx, marketId)
+		if err != nil {
+			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			return
+		}
+	}
 }
 
 func (s *MarketUseCase) Register(observer domain.Observer) {
@@ -23,9 +34,9 @@ func (s *MarketUseCase) Register(observer domain.Observer) {
 	s.observers = append(s.observers, observer)
 }
 
-func (s *MarketUseCase) Notify() {
+func (s *MarketUseCase) Notify(ctx context.Context) {
 	for _, k := range s.observers {
-		k.Update()
+		k.Update(ctx)
 	}
 }
 
@@ -44,15 +55,25 @@ func (s *MarketUseCase) DeleteMarket(ctx context.Context, marketId int) error {
 }
 
 func (s *MarketUseCase) DeactivateMarket(ctx context.Context, marketId int) error {
-	err := s.r.ChangeActivationMarket(marketId, false)
+	market, err := s.r.ChangeActivationMarket(marketId, false)
 	if err != nil {
 		return err
 	}
-	s.Notify()
+
+	s.Notify(context.WithValue(ctx, `eventId`, market.EventId))
 	return err
 }
 func (s *MarketUseCase) ActivateMarket(ctx context.Context, marketId int) error {
-	return s.r.ChangeActivationMarket(marketId, true)
+	_, err := s.r.ChangeActivationMarket(marketId, true)
+	//if err != nil {
+	//	return err
+	//}
+	//s.Notify(context.WithValue(ctx, `eventId`, market.EventId))
+	return err
+}
+
+func (s *MarketUseCase) GetMarketsByEventId(eventId int) ([]domain.Market, error) {
+	return s.r.GetMarketsByEventId(eventId)
 }
 
 func New(r domain.SportRepository, subjectsToObserve []domain.Observee) *MarketUseCase {
