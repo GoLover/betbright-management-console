@@ -10,6 +10,7 @@ type SelectionUseCase struct {
 }
 
 func (s SelectionUseCase) CreateSelection(ctx context.Context, selection domain.Selection, marketId, eventId int) (domain.Selection, error) {
+	selection.IsActive = true
 	return s.r.CreateSelection(selection, marketId, eventId)
 }
 
@@ -24,8 +25,7 @@ func (s SelectionUseCase) DeleteSelection(ctx context.Context, selectionId int) 
 }
 
 func (s SelectionUseCase) DeactivateSelection(ctx context.Context, id int) error {
-	//TODO implement me
-	panic("implement me")
+	return s.r.ChangeActivationSelection(id, false)
 }
 
 func New(r domain.SportRepository) *SelectionUseCase {
