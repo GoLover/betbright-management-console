@@ -95,8 +95,18 @@ func (s EventOperator) Delete(ctx context.Context) {
 }
 
 func (s EventOperator) Deactivate(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "please enter event slug to deactivate",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	eventSlugForDelete := helper.InputHandler(pm)
+	err := s.eu.DeactivateEvent(ctx, eventSlugForDelete)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`event deactivated successfully`)
 }
 
 func (s EventOperator) Search(ctx context.Context) {
