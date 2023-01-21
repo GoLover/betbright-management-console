@@ -71,6 +71,7 @@ func (s *EventUseCase) DeactivateEvent(ctx context.Context, slug string) error {
 		return err
 	}
 	s.Notify(context.WithValue(ctx, `sportId`, event.SportId))
+	fmt.Println(`event deactivated successfully`)
 	return err
 }
 
@@ -83,7 +84,11 @@ func (s *EventUseCase) DeleteEvent(ctx context.Context, slug string) error {
 	//TODO implement me
 	panic("implement me")
 }
-
+func (s *EventUseCase) BindObserveLately(subjectsToObserve []domain.Observee) {
+	for _, k := range subjectsToObserve {
+		k.Register(s)
+	}
+}
 func New(r domain.SportRepository, subjectsToObserve []domain.Observee) *EventUseCase {
 	eu := &EventUseCase{r: r}
 	for _, k := range subjectsToObserve {

@@ -2,7 +2,6 @@ package psql
 
 import (
 	"betbright-management-console/domain"
-	"fmt"
 	"gorm.io/gorm/clause"
 )
 
@@ -25,7 +24,7 @@ func (s *SportRepository) GetMarketsByEventId(eventId int) ([]domain.Market, err
 	markets := make([]Market, 0)
 	err := errorTranslator(s.db.Model(&Market{}).Where(&Market{EventID: eventId, IsActive: true}).Find(&markets).Error)
 	if len(markets) == 0 {
-		return []domain.Market{}, fmt.Errorf(`market %#v`, domain.ErrRepoRecordNotFound)
+		return []domain.Market{}, domain.ErrRepoRecordNotFound
 	}
 	if err != nil {
 		return []domain.Market{}, err
@@ -49,7 +48,7 @@ func (s *SportRepository) UpdateMarket(market domain.Market, marketId int, event
 	}
 	updateResult := s.db.Where(&Market{Id: marketId}).Updates(dao)
 	if updateResult.RowsAffected == 0 {
-		return domain.Market{}, fmt.Errorf(`market %#v`, domain.ErrRepoRecordNotFound)
+		return domain.Market{}, domain.ErrRepoRecordNotFound
 	}
 	err := errorTranslator(updateResult.Error)
 	if err != nil {
@@ -59,9 +58,9 @@ func (s *SportRepository) UpdateMarket(market domain.Market, marketId int, event
 }
 func (s *SportRepository) ChangeActivationMarket(marketId int, active bool) (domain.Market, error) {
 	market := &Market{}
-	updateResult := s.db.Model(&market).Clauses(clause.Returning{}).Where(&Market{Id: marketId}).Updates(map[string]interface{}{"is_active": active})
+	updateResult := s.db.Model(&market).Clauses(clause.Returning{}).Where(map[string]interface{}{"id": marketId}).Updates(map[string]interface{}{"is_active": active})
 	if updateResult.RowsAffected == 0 {
-		return domain.Market{}, fmt.Errorf(`market %w`, domain.ErrRepoRecordNotFound)
+		return domain.Market{}, domain.ErrRepoRecordNotFound
 	}
 	return market.ToDomain(), errorTranslator(updateResult.Error)
 }

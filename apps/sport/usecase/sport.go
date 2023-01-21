@@ -26,6 +26,7 @@ func (s *SportUseCase) Update(ctx context.Context) {
 			fmt.Println(fmt.Errorf(`Update-DeactivateSport %w`, err))
 			return
 		}
+		return
 	}
 	if err != nil {
 		fmt.Println(fmt.Errorf(`Update-GetEventsBySportId %w`, err))
@@ -44,7 +45,10 @@ func (s *SportUseCase) UpdateSport(ctx context.Context, sport domain.Sport, spor
 
 func (s *SportUseCase) DeactivateSport(ctx context.Context, slug string) error {
 	err := s.r.ChangeActivationSport(slug, false)
-	fmt.Println(`sport deactivated`)
+	if err != nil {
+		return err
+	}
+	fmt.Println(`sport deactivated successfully`)
 	return err
 }
 func (s *SportUseCase) ActivateSport(ctx context.Context, slug string) error {

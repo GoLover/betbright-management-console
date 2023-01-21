@@ -31,9 +31,10 @@ func Boot() {
 	var _ domain.Operator = selectionCmd.SelectionOperator{}
 
 	selectionUsecase := selectionUseCase.New(repo)
-	marketUsecase := marketUseCase.New(repo, []domain.Observee{selectionUsecase})
-	eventUsecase := eventUseCase.New(repo, []domain.Observee{marketUsecase})
+	eventUsecase := eventUseCase.New(repo, []domain.Observee{})
 	sportUsecase := sportUseCase.New(repo, []domain.Observee{eventUsecase})
+	marketUsecase := marketUseCase.New(repo, []domain.Observee{selectionUsecase})
+	eventUsecase.BindObserveLately([]domain.Observee{marketUsecase})
 
 	sportHandler := sportCmd.New(sportUsecase, cmd)
 	eventHandler := eventCmd.New(eventUsecase, cmd)
@@ -43,5 +44,5 @@ func Boot() {
 	eventHandler.Handle()
 	marketHandler.Handle()
 	selectionHandler.Handle()
-	cmd.Execute()
+	_ = cmd.Execute()
 }

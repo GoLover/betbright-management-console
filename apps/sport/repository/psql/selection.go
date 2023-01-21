@@ -2,7 +2,6 @@ package psql
 
 import (
 	"betbright-management-console/domain"
-	"fmt"
 	"gorm.io/gorm/clause"
 )
 
@@ -24,7 +23,7 @@ func (s *SportRepository) UpdateSelection(selection domain.Selection, selectionI
 	dao.EventID = eventId
 	updateResult := s.db.Where(&Selection{Id: selectionId}).Updates(dao)
 	if updateResult.RowsAffected == 0 {
-		return domain.Selection{}, fmt.Errorf(`selection %w`, domain.ErrRepoRecordNotFound)
+		return domain.Selection{}, domain.ErrRepoRecordNotFound
 	}
 	err := errorTranslator(updateResult.Error)
 	if err != nil {
@@ -36,8 +35,10 @@ func (s *SportRepository) ChangeActivationSelection(selectionId int, active bool
 	selection := &Selection{}
 	updateResult := s.db.Model(selection).Clauses(clause.Returning{}).Where(&Selection{Id: selectionId}).Updates(map[string]interface{}{"is_active": active})
 	if updateResult.RowsAffected == 0 {
-		return domain.Selection{}, fmt.Errorf(`selection %w`, domain.ErrRepoRecordNotFound)
+		return domain.Selection{}, domain.ErrRepoRecordNotFound
 	}
+	selection.Event.Id = selection.EventID
+	selection.Market.Id = selection.MarketID
 	return selection.ToDomain(), errorTranslator(updateResult.Error)
 }
 

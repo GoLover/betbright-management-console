@@ -2,7 +2,6 @@ package psql
 
 import (
 	"betbright-management-console/domain"
-	"fmt"
 	"gorm.io/gorm/clause"
 )
 
@@ -41,17 +40,17 @@ func (s *SportRepository) UpdateEvent(event domain.Event, eventSlug, sportSlug s
 	if sportSlug != `` {
 		sport, err := s.getSportWithFilter(Sport{Slug: sportSlug, IsActive: true}, false)
 		if err != nil {
-			return domain.Event{}, fmt.Errorf(`sport %w`, err)
+			return domain.Event{}, err
 		}
 		dao.SportID = sport.Id
 	}
 	updateResult := s.db.Model(&Event{Slug: eventSlug}).Updates(dao)
 	if updateResult.RowsAffected == 0 {
-		return domain.Event{}, fmt.Errorf(`%#v`, domain.ErrRepoRecordNotFound)
+		return domain.Event{}, domain.ErrRepoRecordNotFound
 	}
 	err := errorTranslator(updateResult.Error)
 	if err != nil {
-		return domain.Event{}, fmt.Errorf(`event %w`, err)
+		return domain.Event{}, err
 	}
 	updatedEvent := dao.ToDomain()
 	return updatedEvent, nil
@@ -60,7 +59,7 @@ func (s *SportRepository) ChangeActivationEvent(eventSlug string, active bool) (
 	event := &Event{}
 	updateResult := s.db.Model(event).Clauses(clause.Returning{}).Where(&Event{Slug: eventSlug}).Updates(map[string]interface{}{"is_active": active})
 	if updateResult.RowsAffected == 0 {
-		return domain.Event{}, fmt.Errorf(`event %w`, domain.ErrRepoRecordNotFound)
+		return domain.Event{}, domain.ErrRepoRecordNotFound
 	}
 	return event.ToDomain(), errorTranslator(updateResult.Error)
 }

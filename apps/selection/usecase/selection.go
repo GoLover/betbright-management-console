@@ -3,6 +3,7 @@ package usecase
 import (
 	"betbright-management-console/domain"
 	"context"
+	"fmt"
 )
 
 type SelectionUseCase struct {
@@ -44,6 +45,7 @@ func (s *SelectionUseCase) DeactivateSelection(ctx context.Context, id int) erro
 		return err
 	}
 	s.Notify(context.WithValue(ctx, `marketId`, selection.SelectedMarket.Id))
+	fmt.Println(`selection deactivated successfully`)
 	return err
 }
 func (s *SelectionUseCase) ActivateSelection(ctx context.Context, id int) error {

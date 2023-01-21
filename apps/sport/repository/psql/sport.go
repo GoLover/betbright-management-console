@@ -16,10 +16,13 @@ func New(database *gorm.DB) *SportRepository {
 	return &SportRepository{db: database}
 }
 func (s *SportRepository) Migrate() {
-	s.db.AutoMigrate(Sport{})
-	s.db.AutoMigrate(Event{})
-	s.db.AutoMigrate(Market{})
-	s.db.AutoMigrate(Selection{})
+	err := s.db.AutoMigrate(Sport{})
+	err = s.db.AutoMigrate(Event{})
+	err = s.db.AutoMigrate(Market{})
+	err = s.db.AutoMigrate(Selection{})
+	if err != nil {
+		panic(err)
+	}
 }
 func (s *SportRepository) CreateSport(sport domain.Sport) (domain.Sport, error) {
 	dao := &Sport{}
@@ -51,7 +54,7 @@ func (s *SportRepository) UpdateSport(sport domain.Sport, sportSlug string) (dom
 	dao.FillFromDomain(sport)
 	updateResult := s.db.Where(&Sport{Slug: sportSlug}).Updates(dao)
 	if updateResult.RowsAffected == 0 {
-		return domain.Sport{}, fmt.Errorf(`sport %w`, domain.ErrRepoRecordNotFound)
+		return domain.Sport{}, domain.ErrRepoRecordNotFound
 	}
 	err := errorTranslator(updateResult.Error)
 	if err != nil {
@@ -65,7 +68,7 @@ func (s *SportRepository) ChangeActivationSport(sportSlug string, active bool) e
 	}))
 	updateResult := s.db.Model(&Sport{Slug: sportSlug}).Where(&Sport{Slug: sportSlug}).Updates(map[string]interface{}{"is_active": active})
 	if updateResult.RowsAffected == 0 {
-		return fmt.Errorf(`sport %w`, domain.ErrRepoRecordNotFound)
+		return domain.ErrRepoRecordNotFound
 	}
 	return errorTranslator(updateResult.Error)
 }
