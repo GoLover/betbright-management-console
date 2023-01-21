@@ -33,4 +33,5 @@ type EventUseCase interface {
 	UpdateEvent(ctx context.Context, event Event, eventSlug, sportSlug string) (Event, error)
 	DeleteEvent(ctx context.Context, slug string) error
 	DeactivateEvent(ctx context.Context, slug string) error
+	ActivateEvent(ctx context.Context, slug string) error
 }

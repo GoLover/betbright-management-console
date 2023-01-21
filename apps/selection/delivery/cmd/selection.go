@@ -23,6 +23,14 @@ func (s SelectionOperator) Delete(ctx context.Context) {
 	//TODO implement me
 	panic("implement me")
 }
+func (s SelectionOperator) Deactivate(ctx context.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+func (s SelectionOperator) Activate(ctx context.Context) {
+	//TODO implement me
+	panic("implement me")
+}
 
 func (s SelectionOperator) Search(ctx context.Context) {
 	//TODO implement me

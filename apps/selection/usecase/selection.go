@@ -27,6 +27,9 @@ func (s SelectionUseCase) DeleteSelection(ctx context.Context, selectionId int) 
 func (s SelectionUseCase) DeactivateSelection(ctx context.Context, id int) error {
 	return s.r.ChangeActivationSelection(id, false)
 }
+func (s SelectionUseCase) ActivateSelection(ctx context.Context, id int) error {
+	return s.r.ChangeActivationSelection(id, true)
+}
 
 func New(r domain.SportRepository) *SelectionUseCase {
 	return &SelectionUseCase{r: r}

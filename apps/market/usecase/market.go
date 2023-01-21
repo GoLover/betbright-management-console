@@ -14,9 +14,8 @@ func (s MarketUseCase) CreateMarket(ctx context.Context, market domain.Market, e
 	return s.r.CreateMarket(market, eventSlug)
 }
 
-func (s MarketUseCase) UpdateMarket(ctx context.Context, market domain.Market, marketId int) (domain.Market, error) {
-	//TODO implement me
-	panic("implement me")
+func (s MarketUseCase) UpdateMarket(ctx context.Context, market domain.Market, marketId int, eventSlug string) (domain.Market, error) {
+	return s.r.UpdateMarket(market, marketId, eventSlug)
 }
 
 func (s MarketUseCase) DeleteMarket(ctx context.Context, marketId int) error {
@@ -26,6 +25,9 @@ func (s MarketUseCase) DeleteMarket(ctx context.Context, marketId int) error {
 
 func (s MarketUseCase) DeactivateMarket(ctx context.Context, marketId int) error {
 	return s.r.ChangeActivationMarket(marketId, false)
+}
+func (s MarketUseCase) ActivateMarket(ctx context.Context, marketId int) error {
+	return s.r.ChangeActivationMarket(marketId, true)
 }
 
 func New(r domain.SportRepository) *MarketUseCase {

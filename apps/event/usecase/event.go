@@ -31,6 +31,10 @@ func (s EventUseCase) DeactivateEvent(ctx context.Context, slug string) error {
 	return s.r.ChangeActivationEvent(slug, false)
 }
 
+func (s EventUseCase) ActivateEvent(ctx context.Context, slug string) error {
+	return s.r.ChangeActivationEvent(slug, true)
+}
+
 func (s EventUseCase) DeleteEvent(ctx context.Context, slug string) error {
 	//TODO implement me
 	panic("implement me")

@@ -10,6 +10,7 @@ import (
 	sportCmd "betbright-management-console/apps/sport/delivery/cmd"
 	"betbright-management-console/apps/sport/repository/psql"
 	sportUseCase "betbright-management-console/apps/sport/usecase"
+	"betbright-management-console/domain"
 	"github.com/spf13/cobra"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -24,6 +25,11 @@ func Boot() {
 		Short: "betbright interactive command line"}
 	repo := psql.New(db)
 	repo.Migrate()
+	var _ domain.Operator = sportCmd.SportOperator{}
+	var _ domain.Operator = marketCmd.MarketOperator{}
+	var _ domain.Operator = eventCmd.EventOperator{}
+	var _ domain.Operator = selectionCmd.SelectionOperator{}
+
 	sportUsecase := sportUseCase.New(repo)
 	selectionUsecase := selectionUseCase.New(repo)
 	marketUsecase := marketUseCase.New(repo)

@@ -72,6 +72,22 @@ func (s SportOperator) Deactivate(ctx context.Context) {
 	}
 	fmt.Println(`sport deactivated successfully`)
 }
+
+func (s SportOperator) Activate(ctx context.Context) {
+	pm := helper.PromptMessage{
+		Msg:        "please enter sport slug you want to activate",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	sportSlugForDelete := helper.InputHandler(pm)
+	err := s.u.ActivateSport(ctx, sportSlugForDelete)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`sport activated successfully`)
+}
+
 func (s SportOperator) Delete(ctx context.Context) {
 	panic("imp")
 }

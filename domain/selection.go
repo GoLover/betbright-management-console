@@ -29,4 +29,5 @@ type SelectionUseCase interface {
 	UpdateSelection(ctx context.Context, selection Selection, selectionId int) (Selection, error)
 	DeleteSelection(ctx context.Context, selectionId int) error
 	DeactivateSelection(ctx context.Context, selectionId int) error
+	ActivateSelection(ctx context.Context, selectionId int) error
 }

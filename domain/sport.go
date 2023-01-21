@@ -18,6 +18,7 @@ type SportUseCase interface {
 	CreateSport(ctx context.Context, sport Sport) (Sport, error)
 	UpdateSport(ctx context.Context, sport Sport, sportSlug string) (Sport, error)
 	DeactivateSport(ctx context.Context, slug string) error
+	ActivateSport(ctx context.Context, slug string) error
 }
 
 type SportRepository interface {

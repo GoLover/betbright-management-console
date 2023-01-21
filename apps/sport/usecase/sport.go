@@ -23,6 +23,9 @@ func (s SportUseCase) UpdateSport(ctx context.Context, sport domain.Sport, sport
 func (s SportUseCase) DeactivateSport(ctx context.Context, slug string) error {
 	return s.r.ChangeActivationSport(slug, false)
 }
+func (s SportUseCase) ActivateSport(ctx context.Context, slug string) error {
+	return s.r.ChangeActivationSport(slug, true)
+}
 
 func New(r domain.SportRepository) *SportUseCase {
 	return &SportUseCase{r: r}

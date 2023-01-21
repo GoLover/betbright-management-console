@@ -12,7 +12,7 @@ import (
 func OperationHandler(cmd *cobra.Command, args []string) {
 	oHandler := cmd.Context().Value(`area`).(domain.Operator)
 	if cmd.Use != "search" {
-		availableOperations := []string{"create", "update", "search", "delete", "deactivate"}
+		availableOperations := []string{"create", "update", "delete", "deactivate", "activate"}
 		pm := PromptMessage{
 			Msg:        "what do you want to do?",
 			ErrMsg:     "Err!",
@@ -38,6 +38,8 @@ func OperationHandler(cmd *cobra.Command, args []string) {
 			oHandler.Delete(cmd.Context())
 		case "deactivate":
 			oHandler.Deactivate(cmd.Context())
+		case "activate":
+			oHandler.Activate(cmd.Context())
 		case "search":
 			oHandler.Search(cmd.Context())
 		default:
