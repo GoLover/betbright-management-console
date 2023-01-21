@@ -10,6 +10,7 @@ type MarketUseCase struct {
 }
 
 func (s MarketUseCase) CreateMarket(ctx context.Context, market domain.Market, eventSlug string) (domain.Market, error) {
+	market.IsActive = true
 	return s.r.CreateMarket(market, eventSlug)
 }
 
@@ -24,10 +25,8 @@ func (s MarketUseCase) DeleteMarket(ctx context.Context, marketId int) error {
 }
 
 func (s MarketUseCase) DeactivateMarket(ctx context.Context, marketId int) error {
-	//TODO implement me
-	panic("implement me")
+	return s.r.ChangeActivationMarket(marketId, false)
 }
-
 
 func New(r domain.SportRepository) *MarketUseCase {
 	return &MarketUseCase{r: r}
