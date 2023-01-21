@@ -43,7 +43,7 @@ func (s *SportRepository) ChangeActivationSelection(selectionId int, active bool
 
 func (s *SportRepository) GetSelectionByMarketId(marketId int) ([]domain.Selection, error) {
 	var selection []Selection
-	err := errorTranslator(s.db.Model(&Selection{}).Where(map[string]interface{}{"market_id": marketId}).Find(&selection).Error)
+	err := errorTranslator(s.db.Model(&Selection{}).Where(map[string]interface{}{"market_id": marketId, "is_active": true}).Find(&selection).Error)
 	if err != nil {
 		return nil, err
 	}

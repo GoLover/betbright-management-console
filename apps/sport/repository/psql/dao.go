@@ -77,6 +77,7 @@ func (e *Event) ToDomain() domain.Event {
 		Status:   domain.EventStatus(e.Status),
 		Slug:     e.Slug,
 		IsActive: e.IsActive,
+		SportId:  e.SportID,
 	}
 	event.Markets = make([]domain.Market, 0)
 	for _, k := range e.Markets {

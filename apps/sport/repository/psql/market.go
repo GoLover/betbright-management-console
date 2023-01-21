@@ -23,7 +23,7 @@ func (s *SportRepository) CreateMarket(market domain.Market, eventSlug string) (
 
 func (s *SportRepository) GetMarketsByEventId(eventId int) ([]domain.Market, error) {
 	markets := make([]Market, 0)
-	err := errorTranslator(s.db.Model(&Market{}).Where(&Market{EventID: eventId}).Find(&markets).Error)
+	err := errorTranslator(s.db.Model(&Market{}).Where(&Market{EventID: eventId, IsActive: true}).Find(&markets).Error)
 	if len(markets) == 0 {
 		return []domain.Market{}, fmt.Errorf(`market %#v`, domain.ErrRepoRecordNotFound)
 	}

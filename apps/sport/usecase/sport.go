@@ -3,6 +3,7 @@ package usecase
 import (
 	"betbright-management-console/domain"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gosimple/slug"
 )
@@ -13,21 +14,21 @@ type SportUseCase struct {
 
 func (s *SportUseCase) Update(ctx context.Context) {
 	sportId := ctx.Value(`sportId`).(int)
-	sports, err := s.r.GetEventsBySportId(sportId)
-	if err != nil {
-		fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
-	}
-	if len(sports) == 0 {
+	_, err := s.r.GetEventsBySportId(sportId)
+	if errors.Is(err, domain.ErrRepoRecordNotFound) {
 		sport, err := s.r.GetSportById(sportId)
 		if err != nil {
-			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			fmt.Println(fmt.Errorf(`Update-GetSportId %w`, err))
 			return
 		}
 		err = s.DeactivateSport(ctx, sport.Slug)
 		if err != nil {
-			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			fmt.Println(fmt.Errorf(`Update-DeactivateSport %w`, err))
 			return
 		}
+	}
+	if err != nil {
+		fmt.Println(fmt.Errorf(`Update-GetEventsBySportId %w`, err))
 	}
 }
 
@@ -42,7 +43,9 @@ func (s *SportUseCase) UpdateSport(ctx context.Context, sport domain.Sport, spor
 }
 
 func (s *SportUseCase) DeactivateSport(ctx context.Context, slug string) error {
-	return s.r.ChangeActivationSport(slug, false)
+	err := s.r.ChangeActivationSport(slug, false)
+	fmt.Println(`sport deactivated`)
+	return err
 }
 func (s *SportUseCase) ActivateSport(ctx context.Context, slug string) error {
 	return s.r.ChangeActivationSport(slug, true)

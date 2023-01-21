@@ -67,7 +67,7 @@ func (s *SportRepository) ChangeActivationEvent(eventSlug string, active bool) (
 
 func (s *SportRepository) GetEventsBySportId(sportId int) ([]domain.Event, error) {
 	var events []Event
-	err := errorTranslator(s.db.Model(&Event{}).Where(map[string]interface{}{"sport_id": sportId}).Find(&events).Error)
+	err := errorTranslator(s.db.Model(&Event{}).Where(map[string]interface{}{"sport_id": sportId, "is_active": true}).Find(&events).Error)
 	if err != nil {
 		return nil, err
 	}

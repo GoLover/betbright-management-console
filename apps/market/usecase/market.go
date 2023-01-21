@@ -3,6 +3,7 @@ package usecase
 import (
 	"betbright-management-console/domain"
 	"context"
+	"errors"
 	"fmt"
 )
 
@@ -14,17 +15,19 @@ type MarketUseCase struct {
 
 func (s *MarketUseCase) Update(ctx context.Context) {
 	marketId := ctx.Value(`marketId`).(int)
-	selections, err := s.r.GetSelectionByMarketId(marketId)
-	if err != nil {
-		fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
-	}
-	if len(selections) == 0 {
+	_, err := s.r.GetSelectionByMarketId(marketId)
+	if errors.Is(err, domain.ErrRepoRecordNotFound) {
 		err = s.DeactivateMarket(ctx, marketId)
 		if err != nil {
-			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			fmt.Println(fmt.Errorf(`DeactiveMarket-UpdateSignal %w`, err))
 			return
 		}
+		return
 	}
+	if err != nil {
+		fmt.Println(fmt.Errorf(`Market-UpdateSignal %w`, err))
+	}
+
 }
 
 func (s *MarketUseCase) Register(observer domain.Observer) {

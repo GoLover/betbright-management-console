@@ -16,22 +16,24 @@ type EventUseCase struct {
 
 func (s *EventUseCase) Update(ctx context.Context) {
 	eventId := ctx.Value(`eventId`).(int)
-	markets, err := s.r.GetMarketsByEventId(eventId)
-	if err != nil {
-		fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
-	}
-	if len(markets) == 0 {
+	_, err := s.r.GetMarketsByEventId(eventId)
+	if errors.Is(err, domain.ErrRepoRecordNotFound) {
 		event, err := s.r.GetEventById(eventId)
 		if err != nil {
-			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			fmt.Println(fmt.Errorf(`GetEventById-UpdateSignal %w`, err))
 			return
 		}
 		err = s.DeactivateEvent(ctx, event.Slug)
 		if err != nil {
-			fmt.Println(fmt.Errorf(`UpdateSignal %w`, err))
+			fmt.Println(fmt.Errorf(`DeactivateEvent-UpdateSignal %w`, err))
 			return
 		}
+		return
 	}
+	if err != nil {
+		fmt.Println(fmt.Errorf(`Event-UpdateSignal %w`, err))
+	}
+
 }
 
 func (s *EventUseCase) Register(observer domain.Observer) {
