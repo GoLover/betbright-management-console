@@ -1,0 +1,27 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: betbright
+      POSTGRES_USER: betbright
+      POSTGRES_PASSWORD: password
+      TZ: 'Asia/Tehran'
+      PGTZ: 'Asia/Tehran'
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+    ports:
+      - 5432:5432
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    ports:
+      - 9200:9200
+
+
+volumes:
+  postgres:
+  elasticsearch:
