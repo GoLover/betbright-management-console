@@ -68,20 +68,11 @@ func (s *MarketUseCase) DeactivateMarket(ctx context.Context, marketId int) erro
 }
 func (s *MarketUseCase) ActivateMarket(ctx context.Context, marketId int) error {
 	_, err := s.r.ChangeActivationMarket(marketId, true)
-	//if err != nil {
-	//	return err
-	//}
-	//s.Notify(context.WithValue(ctx, `eventId`, market.EventId))
 	return err
 }
 
 func (s *MarketUseCase) GetMarketsByEventId(eventId int) ([]domain.Market, error) {
 	return s.r.GetMarketsByEventId(eventId)
-}
-func (s *MarketUseCase) BindObserveLately(subjectsToObserve []domain.Observee) {
-	for _, k := range subjectsToObserve {
-		k.Register(s)
-	}
 }
 
 func New(r domain.SportRepository, subjectsToObserve []domain.Observee) *MarketUseCase {
