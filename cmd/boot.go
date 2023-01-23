@@ -46,7 +46,7 @@ func Boot() {
 		HTTPS:    true,
 		Addr:     "localhost:9200",
 		User:     "elastic",
-		Password: "Dic*f23qSC8ayxU1N5jW",
+		Password: "jimmmim888",
 	})
 	pgxConfig, err := pgx.ParseConnectionString("host=localhost user=betbright password=password dbname=betbright port=5432 sslmode=disable TimeZone=Asia/Tehran")
 	if err != nil {
