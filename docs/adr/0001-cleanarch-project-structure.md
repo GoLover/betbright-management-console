@@ -1,6 +1,5 @@
 # 1. Use clean architecture style for project structure
 
-Date: 2022-01-20
 
 ## Status
 

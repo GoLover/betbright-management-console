@@ -1,5 +1,5 @@
-# 1. Use Golang for develop this project
-Date: 2022-01-20
+# 2. Use Golang for develop this project
+
 
 ## Status
 
