@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"betbright-management-console/apps/sport/adapter"
 	"betbright-management-console/domain"
 	"context"
 	"errors"
@@ -9,7 +10,8 @@ import (
 )
 
 type SportUseCase struct {
-	r domain.SportRepository
+	sa adapter.SearchAdapter
+	r  domain.SportRepository
 }
 
 func (s *SportUseCase) Update(ctx context.Context) {

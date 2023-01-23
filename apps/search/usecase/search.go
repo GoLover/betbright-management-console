@@ -10,8 +10,8 @@ type SearchUsecase struct {
 	r domain.SearchRepository
 }
 
-func (s *SearchUsecase) Search(ctx context.Context, query string) (domain.SearchResult, error) {
-	return s.r.SearchIndex(query)
+func (s *SearchUsecase) Search(ctx context.Context, index, query string) (domain.SearchResult, error) {
+	return s.r.SearchIndex(index, query)
 }
 
 func (s *SearchUsecase) Update(ctx context.Context, index string, data map[string]interface{}) error {

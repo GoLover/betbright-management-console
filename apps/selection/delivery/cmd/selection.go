@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"betbright-management-console/apps/selection/adapter"
 	"betbright-management-console/domain"
 	"betbright-management-console/domain/helper"
 	"context"
@@ -11,6 +12,7 @@ import (
 
 type SelectionOperator struct {
 	su domain.SelectionUseCase
+	sa adapter.SearchAdapter
 }
 
 func fillSelectionInteractive() domain.Selection {
@@ -112,11 +114,20 @@ func (s SelectionOperator) Activate(ctx context.Context) {
 }
 
 func (s SelectionOperator) Search(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "enter your query: ",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	searchQuery := helper.InputHandler(pm)
+	result, err := s.sa.Search(ctx, `events`, searchQuery)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`%#v`, result)
 }
 
 func (s SelectionOperator) SearchAll(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	s.Search(ctx)
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"betbright-management-console/apps/market/adapter"
 	"betbright-management-console/domain"
 	"betbright-management-console/domain/helper"
 	"context"
@@ -9,6 +10,7 @@ import (
 )
 
 type MarketOperator struct {
+	sa adapter.SearchAdapter
 	mu domain.MarketUseCase
 }
 
@@ -119,11 +121,20 @@ func (s MarketOperator) Delete(ctx context.Context) {
 }
 
 func (s MarketOperator) Search(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "enter your query: ",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	searchQuery := helper.InputHandler(pm)
+	result, err := s.sa.Search(ctx, `markets`, searchQuery)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`%#v`, result)
 }
 
 func (s MarketOperator) SearchAll(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	s.Search(ctx)
 }

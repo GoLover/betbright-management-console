@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Client is the client to communicate with ES.
@@ -165,6 +166,43 @@ type BulkResponseItem struct {
 	Status  int             `json:"status"`
 	Error   json.RawMessage `json:"error"`
 	Found   bool            `json:"found"`
+}
+
+// SearchRequest is the structure for querying data
+type SearchRequest struct {
+	Query struct {
+		QueryString struct {
+			Query string `json:"query"`
+		} `json:"query_string"`
+	} `json:"query"`
+	Size int           `json:"size"`
+	From int           `json:"from"`
+	Sort []interface{} `json:"sort"`
+}
+
+// SearchResponse is the structure for retrieving data
+type SearchResponse struct {
+	Took     int  `json:"took"`
+	TimedOut bool `json:"timed_out"`
+	Shards   struct {
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Skipped    int `json:"skipped"`
+		Failed     int `json:"failed"`
+	} `json:"_shards"`
+	Hits struct {
+		Total struct {
+			Value    int    `json:"value"`
+			Relation string `json:"relation"`
+		} `json:"total"`
+		MaxScore float64 `json:"max_score"`
+		Hits     []struct {
+			Index  string                 `json:"_index"`
+			ID     string                 `json:"_id"`
+			Score  float64                `json:"_score"`
+			Source map[string]interface{} `json:"_source"`
+		} `json:"hits"`
+	} `json:"hits"`
 }
 
 // DoRequest sends a request with body to ES.
@@ -327,9 +365,37 @@ func (c *Client) IndexBulk(index string, items []*BulkRequest) (*BulkResponse, e
 	return c.DoBulk(reqURL, items)
 }
 
-func (c *Client) Search(index string, query string) (*BulkResponse, error) {
-	//reqURL := fmt.Sprintf("%s://%s/%s/_bulk", c.Protocol, c.Addr,
-	//	url.QueryEscape(index))
-	return &BulkResponse{}, nil
-	//return c.DoBulk(reqURL, items)
+func (c *Client) Search(index string, searchQuery string) (*SearchResponse, error) {
+	reqURL := fmt.Sprintf("%s://%s/%s/_search", c.Protocol, c.Addr, index)
+
+	sr := SearchRequest{Size: 10, Sort: make([]interface{}, 0)}
+	sr.Query.QueryString.Query = searchQuery
+	bodyData, err := json.Marshal(sr)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := bytes.NewBuffer(bodyData)
+	reqMethod := `POST`
+	if len(strings.TrimSpace(searchQuery)) == 0 {
+		reqMethod = `GET`
+		buf = bytes.NewBuffer([]byte{})
+	}
+	resp, err := c.DoRequest(reqMethod, reqURL, buf)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	searchResp := &SearchResponse{}
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(data)
+		return searchResp, err
+	}
+
+	if len(data) > 0 {
+		err = json.Unmarshal(data, &searchResp)
+	}
+	return searchResp, nil
 }

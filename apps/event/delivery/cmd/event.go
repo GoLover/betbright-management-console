@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"betbright-management-console/apps/event/adapter"
 	"betbright-management-console/domain"
 	"betbright-management-console/domain/helper"
 	"context"
@@ -9,6 +10,7 @@ import (
 
 type EventOperator struct {
 	eu domain.EventUseCase
+	sa adapter.SearchAdapter
 }
 
 func fillEventInteractively() (domain.Event, string) {
@@ -123,11 +125,20 @@ func (s EventOperator) Activate(ctx context.Context) {
 	fmt.Println(`event activated successfully`)
 }
 func (s EventOperator) Search(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "enter your query: ",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	searchQuery := helper.InputHandler(pm)
+	result, err := s.sa.Search(ctx, `events`, searchQuery)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`%#v`, result)
 }
 
 func (s EventOperator) SearchAll(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	s.Search(ctx)
 }
