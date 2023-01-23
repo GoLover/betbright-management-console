@@ -11,14 +11,19 @@ type SearchRepository struct {
 	elasticDb *elastic.Client
 }
 
-func (s *SearchRepository) SearchIndex(index, query string) (domain.SearchResult, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *SearchRepository) Update(index string, data map[string]interface{}) error {
+	id := strconv.Itoa(int(data["id"].(int64)))
+	return s.elasticDb.Update(index, id, data)
 }
 
-func (s *SearchRepository) Delete(key string) error {
-	//TODO implement me
-	panic("implement me")
+func (s *SearchRepository) SearchIndex(query string) (domain.SearchResult, error) {
+	s.elasticDb.Search(`*`, query)
+	return domain.SearchResult{}, nil
+}
+
+func (s *SearchRepository) Delete(index, key string) error {
+	err := s.elasticDb.Delete(index, index, key)
+	return err
 }
 
 func (s *SearchRepository) Insert(index string, data map[string]interface{}) error {

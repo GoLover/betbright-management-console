@@ -118,13 +118,15 @@ type SearchResult struct {
 }
 
 type SearchUsecase interface {
-	Search(ctx context.Context, query string)
+	Search(ctx context.Context, query string) (SearchResult, error)
 	Index(ctx context.Context, index string, data map[string]interface{}) error
-	DeleteIndex(ctx context.Context, index string) error
+	Delete(ctx context.Context, index string, data map[string]interface{}) error
+	Update(ctx context.Context, index string, data map[string]interface{}) error
 }
 
 type SearchRepository interface {
 	Insert(index string, data map[string]interface{}) error
-	SearchIndex(index, query string) (SearchResult, error)
-	Delete(key string) error
+	SearchIndex(query string) (SearchResult, error)
+	Delete(index, id string) error
+	Update(index string, data map[string]interface{}) error
 }

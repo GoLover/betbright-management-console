@@ -167,22 +167,6 @@ type BulkResponseItem struct {
 	Found   bool            `json:"found"`
 }
 
-// MappingResponse is the response for the mapping request.
-type MappingResponse struct {
-	Code    int
-	Mapping Mapping
-}
-
-// Mapping represents ES mapping.
-type Mapping map[string]struct {
-	Mappings map[string]struct {
-		Properties map[string]struct {
-			Type   string      `json:"type"`
-			Fields interface{} `json:"fields"`
-		} `json:"properties"`
-	} `json:"mappings"`
-}
-
 // DoRequest sends a request with body to ES.
 func (c *Client) DoRequest(method string, url string, body *bytes.Buffer) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, body)
@@ -222,6 +206,7 @@ func (c *Client) Do(method string, url string, body map[string]interface{}) (*Re
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println(data)
 		return nil, err
 	}
 
@@ -264,64 +249,6 @@ func (c *Client) DoBulk(url string, items []*BulkRequest) (*BulkResponse, error)
 	return ret, err
 }
 
-// CreateMapping creates a ES mapping.
-func (c *Client) CreateMapping(index string, docType string, mapping map[string]interface{}) error {
-	reqURL := fmt.Sprintf("%s://%s/%s", c.Protocol, c.Addr,
-		url.QueryEscape(index))
-
-	r, err := c.Do("HEAD", reqURL, nil)
-	if err != nil {
-		return err
-	}
-
-	// if index doesn't exist, will get 404 not found, create index first
-	if r.Code == http.StatusNotFound {
-		_, err = c.Do("PUT", reqURL, nil)
-
-		if err != nil {
-			return err
-		}
-	} else if r.Code != http.StatusOK {
-		return errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
-	}
-
-	reqURL = fmt.Sprintf("%s://%s/%s/%s/_mapping", c.Protocol, c.Addr,
-		url.QueryEscape(index),
-		url.QueryEscape(docType))
-
-	_, err = c.Do("POST", reqURL, mapping)
-	return err
-}
-
-// GetMapping gets the mapping.
-func (c *Client) GetMapping(index string, docType string) (*MappingResponse, error) {
-	reqURL := fmt.Sprintf("%s://%s/%s/%s/_mapping", c.Protocol, c.Addr,
-		url.QueryEscape(index),
-		url.QueryEscape(docType))
-	buf := bytes.NewBuffer(nil)
-	resp, err := c.DoRequest("GET", reqURL, buf)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := new(MappingResponse)
-	err = json.Unmarshal(data, &ret.Mapping)
-	if err != nil {
-		return nil, err
-	}
-
-	ret.Code = resp.StatusCode
-	return ret, err
-}
-
 // DeleteIndex deletes the index.
 func (c *Client) DeleteIndex(index string) error {
 	reqURL := fmt.Sprintf("%s://%s/%s", c.Protocol, c.Addr,
@@ -339,24 +266,14 @@ func (c *Client) DeleteIndex(index string) error {
 	return errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
 }
 
-// Get gets the item by id.
-func (c *Client) Get(index string, docType string, id string) (*Response, error) {
-	reqURL := fmt.Sprintf("%s://%s/%s/%s/%s", c.Protocol, c.Addr,
-		url.QueryEscape(index),
-		url.QueryEscape(docType),
-		url.QueryEscape(id))
-
-	return c.Do("GET", reqURL, nil)
-}
-
 // Update creates or updates the data
-func (c *Client) Update(index string, docType string, id string, data map[string]interface{}) error {
-	reqURL := fmt.Sprintf("%s://%s/%s/%s/%s", c.Protocol, c.Addr,
+func (c *Client) Update(index string, id string, data map[string]interface{}) error {
+	reqURL := fmt.Sprintf("%s://%s/%s/_update/%s", c.Protocol, c.Addr,
 		url.QueryEscape(index),
-		url.QueryEscape(docType),
 		url.QueryEscape(id))
-
-	r, err := c.Do("PUT", reqURL, data)
+	doc := make(map[string]interface{})
+	doc[`doc`] = data
+	r, err := c.Do("POST", reqURL, doc)
 	if err != nil {
 		return err
 	}
@@ -387,7 +304,7 @@ func (c *Client) Exists(index string, docType string, id string) (bool, error) {
 func (c *Client) Delete(index string, docType string, id string) error {
 	reqURL := fmt.Sprintf("%s://%s/%s/%s/%s", c.Protocol, c.Addr,
 		url.QueryEscape(index),
-		url.QueryEscape(docType),
+		`_doc`,
 		url.QueryEscape(id))
 
 	r, err := c.Do("DELETE", reqURL, nil)
@@ -402,14 +319,6 @@ func (c *Client) Delete(index string, docType string, id string) error {
 	return errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
 }
 
-// Bulk sends the bulk request.
-// only support parent in 'Bulk' related apis
-func (c *Client) Bulk(items []*BulkRequest) (*BulkResponse, error) {
-	reqURL := fmt.Sprintf("%s://%s/_bulk", c.Protocol, c.Addr)
-
-	return c.DoBulk(reqURL, items)
-}
-
 // IndexBulk sends the bulk request for index.
 func (c *Client) IndexBulk(index string, items []*BulkRequest) (*BulkResponse, error) {
 	reqURL := fmt.Sprintf("%s://%s/%s/_bulk", c.Protocol, c.Addr,
@@ -418,11 +327,9 @@ func (c *Client) IndexBulk(index string, items []*BulkRequest) (*BulkResponse, e
 	return c.DoBulk(reqURL, items)
 }
 
-// IndexTypeBulk sends the bulk request for index and doc type.
-func (c *Client) IndexTypeBulk(index string, docType string, items []*BulkRequest) (*BulkResponse, error) {
-	reqURL := fmt.Sprintf("%s://%s/%s/%s/_bulk", c.Protocol, c.Addr,
-		url.QueryEscape(index),
-		url.QueryEscape(docType))
-
-	return c.DoBulk(reqURL, items)
+func (c *Client) Search(index string, query string) (*BulkResponse, error) {
+	//reqURL := fmt.Sprintf("%s://%s/%s/_bulk", c.Protocol, c.Addr,
+	//	url.QueryEscape(index))
+	return &BulkResponse{}, nil
+	//return c.DoBulk(reqURL, items)
 }

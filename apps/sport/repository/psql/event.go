@@ -44,7 +44,7 @@ func (s *SportRepository) UpdateEvent(event domain.Event, eventSlug, sportSlug s
 		}
 		dao.SportID = sport.Id
 	}
-	updateResult := s.db.Model(&Event{Slug: eventSlug}).Updates(dao)
+	updateResult := s.db.Where(&Event{Slug: eventSlug}).Updates(dao)
 	if updateResult.RowsAffected == 0 {
 		return domain.Event{}, domain.ErrRepoRecordNotFound
 	}

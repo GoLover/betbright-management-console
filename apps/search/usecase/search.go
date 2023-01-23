@@ -3,25 +3,29 @@ package usecase
 import (
 	"betbright-management-console/domain"
 	"context"
+	"strconv"
 )
 
 type SearchUsecase struct {
 	r domain.SearchRepository
 }
 
-func (s *SearchUsecase) Search(ctx context.Context, query string) {
-	//TODO implement me
-	panic("implement me")
+func (s *SearchUsecase) Search(ctx context.Context, query string) (domain.SearchResult, error) {
+	return s.r.SearchIndex(query)
 }
 
-func (s *SearchUsecase) DeleteIndex(ctx context.Context, index string) error {
-	//TODO implement me
-	panic("implement me")
+func (s *SearchUsecase) Update(ctx context.Context, index string, data map[string]interface{}) error {
+	return s.r.Update(index, data)
+}
+
+func (s *SearchUsecase) Delete(ctx context.Context, index string, data map[string]interface{}) error {
+	id := strconv.Itoa(int(data[`id`].(int64)))
+	return s.r.Delete(index, id)
 }
 
 func (s *SearchUsecase) Index(ctx context.Context, index string, data map[string]interface{}) error {
-	s.r.Insert(index, data)
-	return nil
+	err := s.r.Insert(index, data)
+	return err
 }
 
 func New(r domain.SearchRepository) *SearchUsecase {

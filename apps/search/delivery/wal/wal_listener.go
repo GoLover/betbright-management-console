@@ -15,18 +15,17 @@ type PGWalDelivery struct {
 	su                  domain.SearchUsecase
 }
 
-func (pgwd *PGWalDelivery) Publish(subject string, event listener.Event) error {
+func (pgwd *PGWalDelivery) Publish(_ string, event listener.Event) error {
 	switch listener.ActionKind(event.Action) {
 	case listener.ActionKindInsert:
 		err := pgwd.su.Index(context.Background(), event.Table, event.Data)
 		return err
 	case listener.ActionKindUpdate:
-		//err := pgwd.su.DeleteIndex()
-		//err = pgwd.su.Index()
-		//return err
+		err := pgwd.su.Update(context.Background(), event.Table, event.Data)
+		return err
 	case listener.ActionKindDelete:
-		//err := pgwd.su.DeleteIndex()
-		//return err
+		err := pgwd.su.Delete(context.Background(), event.Table, event.DataOld)
+		return err
 	}
 	return nil
 }
