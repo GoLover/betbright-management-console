@@ -103,6 +103,7 @@ type Market struct {
 	Schema      int
 	Columns     int
 	EventID     int
+	Selections  []Selection `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func (e *Market) FillFromDomain(market domain.Market) {
@@ -135,7 +136,7 @@ type Selection struct {
 	EventID  int
 	Event    Event
 	MarketID int
-	Market   Market `gorm:"constraint:OnDelete:CASCADE"`
+	Market   Market
 	Name     string
 	Price    decimal.Decimal `gorm:"type:decimal(10,2)"`
 	IsActive bool

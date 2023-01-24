@@ -73,3 +73,11 @@ func (s *SportRepository) GetMarketById(id int) (domain.Market, error) {
 	}
 	return market.ToDomain(), nil
 }
+
+func (s *SportRepository) DeleteMarketById(id int) error {
+	deleteResult := s.db.Delete(&Market{}, id)
+	if deleteResult.RowsAffected == 0 {
+		return domain.ErrRepoRecordNotFound
+	}
+	return errorTranslator(deleteResult.Error)
+}

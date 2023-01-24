@@ -116,8 +116,20 @@ func (s MarketOperator) Activate(ctx context.Context) {
 }
 
 func (s MarketOperator) Delete(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "please enter market id you want to delete",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	marketIdForDelete, err := strconv.Atoi(helper.InputHandler(pm))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = s.mu.DeleteMarket(ctx, marketIdForDelete)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (s MarketOperator) Search(ctx context.Context) {

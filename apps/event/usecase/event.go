@@ -81,8 +81,7 @@ func (s *EventUseCase) ActivateEvent(ctx context.Context, slug string) error {
 }
 
 func (s *EventUseCase) DeleteEvent(ctx context.Context, slug string) error {
-	//TODO implement me
-	panic("implement me")
+	return s.r.DeleteEvent(slug)
 }
 func (s *EventUseCase) BindObserveLately(subjectsToObserve []domain.Observee) {
 	for _, k := range subjectsToObserve {

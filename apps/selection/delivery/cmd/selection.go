@@ -85,8 +85,20 @@ func (s SelectionOperator) Update(ctx context.Context) {
 }
 
 func (s SelectionOperator) Delete(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+	pm := helper.PromptMessage{
+		Msg:        "please enter selection id you want to delete",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	selectionIdForDelete, err := strconv.Atoi(helper.InputHandler(pm))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = s.su.DeleteSelection(ctx, selectionIdForDelete)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 func (s SelectionOperator) Deactivate(ctx context.Context) {
 	pm := helper.PromptMessage{

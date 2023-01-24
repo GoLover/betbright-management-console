@@ -2,6 +2,8 @@ package psql
 
 import (
 	"betbright-management-console/domain"
+	"fmt"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -87,4 +89,15 @@ func (s *SportRepository) GetEventById(id int) (domain.Event, error) {
 		return domain.Event{}, err
 	}
 	return event.ToDomain(), nil
+}
+
+func (s *SportRepository) DeleteEvent(eventSlug string) error {
+	fmt.Println(s.db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx.Model(&Event{Slug: eventSlug}).Where(&Event{Slug: eventSlug}).Delete(&Event{})
+	}))
+	deleteResult := s.db.Model(&Event{Slug: eventSlug}).Where(&Event{Slug: eventSlug}).Delete(&Event{})
+	if deleteResult.RowsAffected == 0 {
+		return domain.ErrRepoRecordNotFound
+	}
+	return errorTranslator(deleteResult.Error)
 }

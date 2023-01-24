@@ -34,8 +34,7 @@ func (s *SelectionUseCase) UpdateSelection(ctx context.Context, selection domain
 }
 
 func (s *SelectionUseCase) DeleteSelection(ctx context.Context, selectionId int) error {
-	//TODO implement me
-	panic("implement me")
+	return s.r.DeleteSelectionById(selectionId)
 }
 
 func (s *SelectionUseCase) DeactivateSelection(ctx context.Context, id int) error {

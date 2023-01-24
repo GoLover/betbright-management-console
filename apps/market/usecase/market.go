@@ -53,8 +53,7 @@ func (s *MarketUseCase) UpdateMarket(ctx context.Context, market domain.Market, 
 }
 
 func (s *MarketUseCase) DeleteMarket(ctx context.Context, marketId int) error {
-	//TODO implement me
-	panic("implement me")
+	return s.r.DeleteMarketById(marketId)
 }
 
 func (s *MarketUseCase) DeactivateMarket(ctx context.Context, marketId int) error {

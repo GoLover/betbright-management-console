@@ -93,7 +93,12 @@ func (s EventOperator) Delete(ctx context.Context) {
 		Selectable: nil,
 	}
 	eventSlugForDelete := helper.InputHandler(pm)
-	s.eu.DeleteEvent(ctx, eventSlugForDelete)
+	err := s.eu.DeleteEvent(ctx, eventSlugForDelete)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`event deleted successfully`)
 }
 
 func (s EventOperator) Deactivate(ctx context.Context) {

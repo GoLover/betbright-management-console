@@ -66,3 +66,10 @@ func (s *SportRepository) GetSelectionById(id int) (domain.Selection, error) {
 	}
 	return selection.ToDomain(), nil
 }
+func (s *SportRepository) DeleteSelectionById(id int) error {
+	deleteResult := s.db.Delete(&Market{}, id)
+	if deleteResult.RowsAffected == 0 {
+		return domain.ErrRepoRecordNotFound
+	}
+	return errorTranslator(deleteResult.Error)
+}
