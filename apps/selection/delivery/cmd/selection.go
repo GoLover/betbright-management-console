@@ -120,7 +120,7 @@ func (s SelectionOperator) Search(ctx context.Context) {
 		Selectable: nil,
 	}
 	searchQuery := helper.InputHandler(pm)
-	result, err := s.sa.Search(ctx, `events`, searchQuery)
+	result, err := s.sa.Search(ctx, `selections`, searchQuery)
 	if err != nil {
 		fmt.Println(err)
 		return

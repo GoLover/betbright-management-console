@@ -22,7 +22,7 @@ func (h *SearchCommandLineHandler) Handle() {
 		Short: "search in all stuffs",
 		Run:   helper.OperationHandler,
 		PreRun: func(cmd *cobra.Command, args []string) {
-			cmd.SetContext(context.WithValue(cmd.Context(), `area`, SearchCommandLineHandler{su: h.su}))
+			cmd.SetContext(context.WithValue(cmd.Context(), `area`, SearchOperator{u: h.su}))
 		},
 	}
 	h.root.AddCommand(cmd)

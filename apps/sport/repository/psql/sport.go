@@ -73,6 +73,17 @@ func (s *SportRepository) ChangeActivationSport(sportSlug string, active bool) e
 	return errorTranslator(updateResult.Error)
 }
 
+func (s *SportRepository) DeleteSport(sportSlug string) error {
+	fmt.Println(s.db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx.Model(&Sport{Slug: sportSlug}).Where(&Sport{Slug: sportSlug}).Delete(&Sport{})
+	}))
+	deleteResult := s.db.Model(&Sport{Slug: sportSlug}).Where(&Sport{Slug: sportSlug}).Delete(&Sport{})
+	if deleteResult.RowsAffected == 0 {
+		return domain.ErrRepoRecordNotFound
+	}
+	return errorTranslator(deleteResult.Error)
+}
+
 func (s *SportRepository) GetSportById(id int) (domain.Sport, error) {
 	var sport Sport
 	err := errorTranslator(s.db.Model(&Sport{}).Where(Sport{Id: id}).First(&sport).Error)

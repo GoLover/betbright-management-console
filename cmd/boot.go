@@ -5,6 +5,7 @@ import (
 	eventUseCase "betbright-management-console/apps/event/usecase"
 	marketCmd "betbright-management-console/apps/market/delivery/cmd"
 	marketUseCase "betbright-management-console/apps/market/usecase"
+	searchCmd "betbright-management-console/apps/search/delivery/cmd"
 	"betbright-management-console/apps/search/delivery/wal"
 	"betbright-management-console/apps/search/repository/elasticsearch"
 	searchUseCase "betbright-management-console/apps/search/usecase"
@@ -15,15 +16,41 @@ import (
 	sportUseCase "betbright-management-console/apps/sport/usecase"
 	"betbright-management-console/domain"
 	"betbright-management-console/infra/elastic"
+	"encoding/json"
 	"github.com/jackc/pgx"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"os"
 )
 
+type ElasticSearchConfig struct {
+	HTTPS    bool
+	Addr     string
+	User     string
+	Password string
+}
+type Config struct {
+	PostgresStrConn string
+	ElasticSearch   ElasticSearchConfig
+}
+
+func parseConfig() Config {
+	configData, err := os.ReadFile(`config.json`)
+	if err != nil {
+		panic(err)
+	}
+	c := Config{}
+	err = json.Unmarshal(configData, &c)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
 func Boot() {
-	db, err := gorm.Open(postgres.Open("host=localhost user=betbright password=password dbname=betbright port=5432 sslmode=disable TimeZone=Asia/Tehran"), &gorm.Config{})
+	config := parseConfig()
+	db, err := gorm.Open(postgres.Open(config.PostgresStrConn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -43,12 +70,12 @@ func Boot() {
 	eventUsecase.BindObserveLately([]domain.Observee{marketUsecase})
 
 	ec := elastic.NewClient(&elastic.ClientConfig{
-		HTTPS:    true,
-		Addr:     "localhost:9200",
-		User:     "elastic",
-		Password: "jimmmim888",
+		HTTPS:    config.ElasticSearch.HTTPS,
+		Addr:     config.ElasticSearch.Addr,
+		User:     config.ElasticSearch.User,
+		Password: config.ElasticSearch.Password,
 	})
-	pgxConfig, err := pgx.ParseConnectionString("host=localhost user=betbright password=password dbname=betbright port=5432 sslmode=disable TimeZone=Asia/Tehran")
+	pgxConfig, err := pgx.ParseConnectionString(config.PostgresStrConn)
 	if err != nil {
 		panic(err)
 	}
@@ -69,10 +96,12 @@ func Boot() {
 	eventHandler := eventCmd.New(eventUsecase, searchUsecase, cmd)
 	marketHandler := marketCmd.New(marketUsecase, searchUsecase, cmd)
 	selectionHandler := selectionCmd.New(selectionUsecase, searchUsecase, cmd)
+	searchCmd := searchCmd.New(searchUsecase, cmd)
 	sportHandler.Handle()
 	eventHandler.Handle()
 	marketHandler.Handle()
 	selectionHandler.Handle()
+	searchCmd.Handle()
 	for {
 		_ = cmd.Execute()
 	}

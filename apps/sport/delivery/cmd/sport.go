@@ -98,7 +98,18 @@ func (s SportOperator) Activate(ctx context.Context) {
 }
 
 func (s SportOperator) Delete(ctx context.Context) {
-	panic("imp")
+	pm := helper.PromptMessage{
+		Msg:        "please enter sport slug you want to delete",
+		ErrMsg:     domain.ErrDeliveryIncorrectInput.Error(),
+		Selectable: nil,
+	}
+	sportSlugForDelete := helper.InputHandler(pm)
+	err := s.u.DeleteSport(ctx, sportSlugForDelete)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(`sport deleted successfully`)
 }
 
 func (s SportOperator) Search(ctx context.Context) {

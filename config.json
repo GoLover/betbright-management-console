@@ -1,0 +1,9 @@
+{
+  "PostgresStrConn": "host=localhost user=betbright password=password dbname=betbright port=5432 sslmode=disable TimeZone=Asia/Tehran",
+  "ElasticSearch": {
+    "HTTPS": true,
+    "Addr": "localhost:9200",
+    "User":     "elastic",
+    "Password": "jimmmim888"
+  }
+}

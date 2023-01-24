@@ -45,6 +45,10 @@ func (s *SportUseCase) UpdateSport(ctx context.Context, sport domain.Sport, spor
 	return s.r.UpdateSport(sport, sportSlug)
 }
 
+func (s *SportUseCase) DeleteSport(ctx context.Context, sportSlug string) error {
+	return s.r.DeleteSport(sportSlug)
+}
+
 func (s *SportUseCase) DeactivateSport(ctx context.Context, slug string) error {
 	err := s.r.ChangeActivationSport(slug, false)
 	if err != nil {
