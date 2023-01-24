@@ -12,7 +12,7 @@ type Sport struct {
 	Slug        string `gorm:"uniqueIndex"`
 	OrderInList int    `gorm:"uniqueIndex"`
 	IsActive    bool
-	Events      []Event
+	Events      []Event `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func (s *Sport) FillFromDomain(sport domain.Sport) {
@@ -44,7 +44,7 @@ type Event struct {
 	Slug     string `gorm:"uniqueIndex"`
 	IsActive bool
 	SportID  int
-	Markets  []Market
+	Markets  []Market `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func (e *Event) FillFromDomain(event domain.Event) {
@@ -135,7 +135,7 @@ type Selection struct {
 	EventID  int
 	Event    Event
 	MarketID int
-	Market   Market
+	Market   Market `gorm:"constraint:OnDelete:CASCADE"`
 	Name     string
 	Price    decimal.Decimal `gorm:"type:decimal(10,2)"`
 	IsActive bool
