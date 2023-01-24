@@ -37,8 +37,6 @@ func (s *SportRepository) ChangeActivationSelection(selectionId int, active bool
 	if updateResult.RowsAffected == 0 {
 		return domain.Selection{}, domain.ErrRepoRecordNotFound
 	}
-	selection.Event.Id = selection.EventID
-	selection.Market.Id = selection.MarketID
 	return selection.ToDomain(), errorTranslator(updateResult.Error)
 }
 

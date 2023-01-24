@@ -132,11 +132,11 @@ func (e *Market) ToDomain() domain.Market {
 }
 
 type Selection struct {
-	Id       int `gorm:"primaryKey;autoIncrement"`
-	EventID  int
-	Event    Event
+	Id      int `gorm:"primaryKey;autoIncrement"`
+	EventID int
+	//Event    Event
 	MarketID int
-	Market   Market
+	//Market   Market
 	Name     string
 	Price    decimal.Decimal `gorm:"type:decimal(10,2)"`
 	IsActive bool
@@ -157,8 +157,8 @@ func (s *Selection) ToDomain() domain.Selection {
 	selection := domain.Selection{
 		Id:             s.Id,
 		Name:           s.Name,
-		SelectedEvent:  s.Event.ToDomain(),
-		SelectedMarket: s.Market.ToDomain(),
+		SelectedEvent:  domain.Event{Id: s.EventID},
+		SelectedMarket: domain.Market{Id: s.MarketID},
 		Price:          s.Price,
 		IsActive:       s.IsActive,
 		Outcome:        domain.OutcomeState(s.Outcome),
