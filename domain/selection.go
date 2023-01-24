@@ -7,6 +7,22 @@ import (
 
 type OutcomeState int
 
+func (o OutcomeState) ToString() string {
+	switch o {
+	case Unsettled:
+		return "Unsettled"
+	case Void:
+		return "Void"
+	case Lose:
+		return "Lose"
+	case Place:
+		return "Place"
+	case Win:
+		return "Win"
+	}
+	return ""
+}
+
 const (
 	Unsettled OutcomeState = iota
 	Void
@@ -21,7 +37,7 @@ type Selection struct {
 	SelectedEvent  Event
 	SelectedMarket Market
 	Price          decimal.Decimal
-	IsActive       bool
+	IsActive       bool `json:"is_active"`
 	Outcome        OutcomeState
 }
 type SelectionUseCase interface {

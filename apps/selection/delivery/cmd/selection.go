@@ -125,7 +125,7 @@ func (s SelectionOperator) Search(ctx context.Context) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(`%#v`, result)
+	result.PrettyPrint()
 }
 
 func (s SelectionOperator) SearchAll(ctx context.Context) {

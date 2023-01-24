@@ -2,6 +2,9 @@ package domain
 
 import (
 	"context"
+	"fmt"
+	"github.com/pterm/pterm"
+	"strconv"
 	"strings"
 )
 
@@ -115,6 +118,43 @@ type SearchResult struct {
 	Events    []Event
 	Markets   []Market
 	Selection []Selection
+}
+
+func (sr SearchResult) PrettyPrint() {
+	if len(sr.Sports) > 0 {
+		ptd := make([][]string, 0)
+		ptd = append(ptd, []string{"ID", "Name", "DisplayName", "Slug", "Order", "isActive"})
+		for _, k := range sr.Sports {
+			ptd = append(ptd, []string{strconv.Itoa(k.Id), k.Name, k.DisplayName, k.Slug, strconv.Itoa(k.Order), fmt.Sprint(k.IsActive)})
+		}
+		pterm.DefaultTable.WithHasHeader().WithData(ptd).Render()
+	}
+	if len(sr.Events) > 0 {
+		ptd := make([][]string, 0)
+		ptd = append(ptd, []string{"ID", "Name", "Slug", "Type", "Status", "SportID", "isActive"})
+		for _, k := range sr.Events {
+			ptd = append(ptd, []string{strconv.Itoa(k.Id), k.Name, k.Slug, k.EType.ToString(), k.Status.ToString(),
+				strconv.Itoa(k.SportId), fmt.Sprint(k.IsActive)})
+		}
+		pterm.DefaultTable.WithHasHeader().WithData(ptd).Render()
+	}
+	if len(sr.Markets) > 0 {
+		ptd := make([][]string, 0)
+		ptd = append(ptd, []string{"ID", "Name", "DisplayName", "EventId", "Schema", "Column", "Order", "isActive"})
+		for _, k := range sr.Markets {
+			ptd = append(ptd, []string{strconv.Itoa(k.Id), k.Name, k.DisplayName, strconv.Itoa(k.EventId),
+				strconv.Itoa(k.Schema), strconv.Itoa(k.Columns), strconv.Itoa(k.Order), fmt.Sprint(k.IsActive)})
+		}
+		pterm.DefaultTable.WithHasHeader().WithData(ptd).Render()
+	}
+	if len(sr.Selection) > 0 {
+		ptd := make([][]string, 0)
+		ptd = append(ptd, []string{"ID", "Name", "EventId", "MarketId", "Outcome", "Price", "isActive"})
+		for _, k := range sr.Selection {
+			ptd = append(ptd, []string{strconv.Itoa(k.Id), k.Name, strconv.Itoa(k.SelectedEvent.Id), strconv.Itoa(k.SelectedMarket.Id), k.Outcome.ToString(), k.Price.String(), fmt.Sprint(k.IsActive)})
+		}
+		pterm.DefaultTable.WithHasHeader().WithData(ptd).Render()
+	}
 }
 
 type SearchUsecase interface {

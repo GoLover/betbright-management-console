@@ -7,10 +7,10 @@ import (
 type Sport struct {
 	Id          int
 	Name        string
-	DisplayName string
+	DisplayName string `json:"display_name"`
 	Slug        string
 	Order       int
-	IsActive    bool
+	IsActive    bool `json:"is_active"`
 	Events      []Event
 }
 

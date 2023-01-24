@@ -132,7 +132,7 @@ func (s MarketOperator) Search(ctx context.Context) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(`%#v`, result)
+	result.PrettyPrint()
 }
 
 func (s MarketOperator) SearchAll(ctx context.Context) {

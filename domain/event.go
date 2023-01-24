@@ -3,7 +3,30 @@ package domain
 import "context"
 
 type EventType int
+
+func (e EventType) ToString() string {
+	switch e {
+	case ETPrePlay:
+		return `Pre Play`
+	case ETInPlay:
+		return `In Play`
+	}
+	return ``
+}
+
 type EventStatus int
+
+func (e EventStatus) ToString() string {
+	switch e {
+	case ESPrePlay:
+		return `Pre Play`
+	case ESInPlay:
+		return `In Play`
+	case ESEnded:
+		return `Ended`
+	}
+	return ``
+}
 
 const (
 	_ EventType = iota
@@ -24,8 +47,8 @@ type Event struct {
 	EType    EventType
 	Status   EventStatus
 	Slug     string
-	IsActive bool
-	SportId  int
+	IsActive bool `json:"is_active"`
+	SportId  int  `json:"sport_id"`
 	Markets  []Market
 }
 

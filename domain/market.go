@@ -5,9 +5,9 @@ import "context"
 type Market struct {
 	Id          int
 	Name        string
-	DisplayName string
+	DisplayName string `json:"display_name"`
 	Order       int
-	IsActive    bool
+	IsActive    bool `json:"is_active"`
 	Schema      int
 	Columns     int
 	EventId     int

@@ -113,7 +113,7 @@ func (s SportOperator) Search(ctx context.Context) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(`%#v`, result)
+	result.PrettyPrint()
 }
 
 func (s SportOperator) SearchAll(ctx context.Context) {
