@@ -44,7 +44,7 @@ const (
 type Event struct {
 	Id       int
 	Name     string
-	EType    EventType
+	EType    EventType `json:"e_type"`
 	Status   EventStatus
 	Slug     string
 	IsActive bool `json:"is_active"`
