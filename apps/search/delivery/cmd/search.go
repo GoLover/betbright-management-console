@@ -11,6 +11,16 @@ type SearchOperator struct {
 	u domain.SearchUsecase
 }
 
+func (s SearchOperator) Deactivate(ctx context.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s SearchOperator) Activate(ctx context.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s SearchOperator) Create(ctx context.Context) {
 	s.SearchAll(ctx)
 }
